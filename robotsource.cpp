@@ -3,6 +3,9 @@
 #include <termios.h>
 #include <stdbool.h>
 #include <string.h>
+#include <wiringPi.h>
+#include <stdlib.h>
+#include <time.h>
 
 //kbhit is a windows function, code to mimic it for linux taken from stackoverflow user ssinfod
 //https://stackoverflow.com/questions/421860/capture-characters-from-standard-input-without-waiting-for-enter-to-be-pressed
@@ -16,6 +19,10 @@ void routineMenu(void);
 void remoteMenu(void); //top level
 
 //functions that cause a specific action
+void turn(double);
+void takeStep(int);
+void pinSetup(void);
+void pinShutdown(void);
 
 int kbhit(void) {
     static bool initflag = false;
@@ -43,12 +50,22 @@ int main(int argc, char** argv)
 {
 	char c;
 	int sad_level=100;
+	int direction;
+	int lightnum;
+	int lightstate;
+	pinSetup();
 	printf("Enter r at any time to go to remote mode. \n");
 	while(1){
     //setbuf(stdout, NULL); // Optional: No buffering.
     //setbuf(stdin, NULL);  // Optional: No buffering.
     while (!kbhit()) {
-        printf("Would be doing autonomous stuff right now... \n");
+        printf("Press r for remote control \n");
+	lightnum=rand()%6+10;
+	lightstate=rand()%2;
+	direction=rand%360;
+	digitalWrite(lightnum,lightstate);
+	turn(direction);
+	takeStep(1);
         fflush(stdout);
         sleep(1);
     }
@@ -69,7 +86,7 @@ int main(int argc, char** argv)
 void moveMenu(void)
 {
 	printf("move menu reached \n");
-	printf("Acceptable commands: STEP, TURN, SPEED, HELP, EXIT \n");	
+	printf("Acceptable commands: STEP, TURN, EXIT \n");	
 	int flag=0;
 	while(flag!=1)
 	{
@@ -78,6 +95,28 @@ void moveMenu(void)
 		if(strcmp(input,"EXIT")==0)
 		{
 			flag=1;
+		}
+		else if(strcmp(input,"STEP")==0
+		{
+			printf("FORWARD, BACK, LEFT, RIGHT or CANCEL \n")
+			char dir[50];
+			scanf ("%79s",dir);
+			if(strcmp(dir,"FORWARD")==0)
+			{
+				takeStep(1);
+			}
+			else if(strcmp(dir,"BACK")==0)
+			{
+				takeStep(2);
+			}
+			else if(strcmp(dir,"RIGHT")==0)
+			{
+				takeStep(3);
+			}
+			else if(strcmp(dir,"LEFT")==0)
+			{
+				takeStep(4);
+			}
 		}
 	}	
 	return;
